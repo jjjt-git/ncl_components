@@ -57,7 +57,7 @@ begin
 		y_0(ii) <= t_0;
 		y_1(ii) <= t_1;
 	
-		reg_0: entity ncl_gates.TH22n
+		NCL_reg_0: entity ncl_gates.TH22n
 			port map (
 				A => ki,
 				B => d_0(ii),
@@ -65,7 +65,7 @@ begin
 				Z => t_0
 			);
 			
-		reg_1: entity ncl_gates.TH22d
+		NCL_reg_1: entity ncl_gates.TH22d
 			port map (
 				A => ki,
 				B => d_1(ii),

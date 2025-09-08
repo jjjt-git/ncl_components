@@ -1,5 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+library UNISIM;
+use UNISIM.VComponents.all;
 
 entity ncl2clk is
 	generic (
@@ -17,7 +19,7 @@ entity ncl2clk is
 end ncl2clk;
 
 architecture Behavioural of ncl2clk is
-	signal di_b_0, di_b_1, do_b : std_logic_vector(width - 1 downto 0);
+	signal di_b_0, di_b_1, do_b, di_m_0, di_m_1 : std_logic_vector(width - 1 downto 0);
 	signal di_cN, di_cD, do_bv, do_v : std_logic;
 	
 	type state_t is (WFD, WFN);
@@ -28,14 +30,32 @@ architecture Behavioural of ncl2clk is
 	attribute ASYNC_REG of di_b_1: signal is TRUE;
 begin
 
+	data_input_markers: for ii in 0 to width - 1 generate -- markers to disable timing through NCL-logic
+		NCL2CLK_in_0: LUT1
+			generic map (
+				INIT => "10")
+			port map (
+				I0 => di_0(ii),
+				O  => di_m_0(ii)
+			);
+			
+		NCL2CLK_in_1: LUT1
+			generic map (
+				INIT => "10")
+			port map (
+				I0 => di_1(ii),
+				O  => di_m_1(ii)
+			);
+	end generate;
+
 	data_input_regs: process(clk) begin
 		if rising_edge(clk) then
 			if rst = '1' then
 				di_b_0 <= (others => '0');
 				di_b_1 <= (others => '0');
 			else
-				di_b_0 <= di_0;
-				di_b_1 <= di_1;
+				di_b_0 <= di_m_0;
+				di_b_1 <= di_m_1;
 			end if;
 		end if;
 	end process data_input_regs;

@@ -35,11 +35,15 @@ library ncl_gates;
 
 entity rege_r1 is
 	Generic (
+		RST_MASK_KO : boolean;
+		RST_MASK_KO_VALUE : std_logic := 'X';
+		MKO_VALUE : std_logic := 'X';
 		width : integer
 	);
 	Port (
 		rst : in STD_LOGIC;
 		e   : in std_logic;
+		mko : in std_logic;
 		ki  : in std_logic;
 		ko  : out STD_LOGIC_VECTOR (width - 1 downto 0);
 		d_0 : in STD_LOGIC_VECTOR (width - 1 downto 0);
@@ -57,11 +61,12 @@ begin
 
 	regs: for ii in 0 to width - 1 generate
 		signal t_0, t_1: std_logic;
+		signal tko : std_logic;
 	begin
 		y_0(ii) <= t_0;
 		y_1(ii) <= t_1;
 		
-		reg_0: entity ncl_gates.TH33n
+		NCL_reg_0: entity ncl_gates.TH33n
 			port map (
 				A => ki,
 				B => d_0(ii),
@@ -70,7 +75,7 @@ begin
 				Z => t_0
 			);
 			
-		reg_1: entity ncl_gates.TH33d
+		NCL_reg_1: entity ncl_gates.TH33d
 			port map (
 				A => ki,
 				B => d_1(ii),
@@ -83,8 +88,13 @@ begin
 			port map (
 				A => t_0,
 				B => t_1,
-				Z => ko(ii)
+				Z => tko
 			);
+			
+		ko(ii) <=
+			RST_MASK_KO_VALUE when rst = '1' and RST_MASK_KO else
+			MKO_VALUE when mko = '1' else
+			tko;
 	end generate;
 
 end Behavioral;
