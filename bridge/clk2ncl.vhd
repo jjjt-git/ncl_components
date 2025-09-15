@@ -20,43 +20,67 @@ end clk2ncl;
 
 architecture Behavioural of clk2ncl is
 	signal di_b, do_b: std_logic_vector(width - 1 downto 0);
-	signal do_b_stall, di_bv, do_v, ki_m: std_logic;
+	signal do_b_stall, di_bv, do_v, ki_neg, do_rst, do_ce: std_logic;
 	
 	attribute ASYNC_REG : boolean;
-	attribute ASYNC_REG of do_0: signal is TRUE;
-	attribute ASYNC_REG of do_1: signal is TRUE;
-	attribute ASYNC_REG of do_b_stall: signal is TRUE;
+	attribute ASYNC_REG of ki_latch: label is TRUE;
 begin
-	CLK2NCL_ki: LUT1 -- marker to disable timing through NCL-logic
-		generic map (
-			INIT => "10")
-		port map (
-			I0 => ki,
-			O  => ki_m
-		);
+
+	data_output_regs: for ii in 0 to width - 1 generate
+		signal d_neg : std_logic;
 		
-	data_output_regs: process(clk, ki_m, rst) begin
-		if ki_m = '0' or rst = '1' then
-			do_0 <= (others => '0');
-			do_1 <= (others => '0');
-			do_b_stall <= '0'; -- rfn could be quite short (compared to clk)
-		elsif rising_edge(clk) then
-			if do_v = '1' and ki_m = '1' and do_b_stall = '0' then
-				do_b_stall <= '1';
-				do_0 <= not do_b;
-				do_1 <= do_b;
-			end if;
-		end if;
-	end process data_output_regs;
+		attribute ASYNC_REG of reg_0: label is TRUE;
+		attribute ASYNC_REG of reg_1: label is TRUE;
+	begin
+	
+		d_neg <= not do_b(ii);
+	
+		reg_0: FDCE
+			generic map (
+				INIT => '0'
+			) port map (
+				C   => clk,
+				CE  => do_ce,
+				CLR => do_rst,
+				D   => d_neg,
+				Q   => do_0(ii)
+			);
+	
+		reg_1: FDCE
+			generic map (
+				INIT => '0'
+			) port map (
+				C   => clk,
+				CE  => do_ce,
+				CLR => do_rst,
+				D   => do_b(ii),
+				Q   => do_1(ii)
+			);
+	end generate;
+	
+	ki_latch: FDPE
+		generic map (
+			INIT => '1'
+		) port map (
+			C   => clk,
+			CE  => do_ce,
+			PRE => do_rst,
+			D   => '0',
+			Q   => do_b_stall
+		);
+
+	ki_neg <= not ki;
+	do_rst <= ki_neg or rst;
+	do_ce  <= do_v and ki and do_b_stall;
 	
 	op: process(clk) begin -- standard bypass buffer (unregistered); ovalid and istall are the same
 		if rising_edge(clk) then
 			if rst = '1' then
 				di_bv <= '0';
 			else
-				if (valid = '1' and di_bv = '0') and (ki_m = '0' or do_b_stall = '1') then -- incoming, but stalled
+				if (valid = '1' and di_bv = '0') and (ki = '0' or do_b_stall = '0') then -- incoming, but stalled
 					di_bv <= '1';
-				elsif not (ki_m = '0' or do_b_stall = '1') then -- not stalled
+				elsif not (ki = '0' or do_b_stall = '0') then -- not stalled
 					di_bv <= '0';
 				end if;
 				
