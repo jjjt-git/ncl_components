@@ -33,12 +33,16 @@ library ncl_components;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity aor0_rN is
+entity aor0_reg is
 	Generic (
-		width : integer
+		width : integer;
+		rst_y_0 : std_logic_vector; -- desired value of y at end of reset
+		rst_y_1 : std_logic_vector
 	);
 	Port (
 		rst : in std_logic;
+		ki  : in std_logic;
+		ko  : out std_logic_vector(width - 1 downto 0);
 		
 		s_0 : in STD_LOGIC;
 		s_1 : in STD_LOGIC;
@@ -47,9 +51,9 @@ entity aor0_rN is
 		y_0 : out STD_LOGIC_VECTOR (width - 1 downto 0);
 		y_1 : out STD_LOGIC_VECTOR (width - 1 downto 0)
 	);
-end aor0_rN;
+end aor0_reg;
 
-architecture Behavioral of aor0_rN is
+architecture Behavioral of aor0_reg is
 begin
 	
 	gates: for ii in width - 1 downto 0 generate
@@ -61,10 +65,15 @@ begin
 		g_prep_1(0) <= a_1(ii);
 		g_prep_1(1) <= s_0;
 		
-		gate: entity ncl_components.andn_rN
-			generic map (width => 2)
-			port map (
+		gate: entity ncl_components.andn_reg
+			generic map (
+				width => 2,
+				rst_y_0 => rst_y_0(ii),
+				rst_y_1 => rst_y_1(ii)
+			) port map (
 				rst => rst,
+				ki  => ki,
+				ko  => ko(ii),
 				
 				d_0 => g_prep_0,
 				d_1 => g_prep_1,

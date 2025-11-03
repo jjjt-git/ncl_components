@@ -31,7 +31,6 @@ begin
 	begin
 		l: entity ncl_components.completion_loop
 			generic map (
-				max_gate_inputs => max_gate_inputs,
 				width => owidth + direct_ko_width
 			) port map (
 				ko_vector => vec,

@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date: 08/16/2025 11:44:50 AM
+-- Create Date: 08/16/2025 11:55:09 AM
 -- Design Name: 
--- Module Name: or3 - Behavioral
+-- Module Name: andn - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -33,47 +33,41 @@ library ncl_components;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity or3_rN is
+entity andn_reg is
+	Generic (
+		width : integer;
+		rst_y_0 : std_logic; -- desired value of y at end of reset
+		rst_y_1 : std_logic
+	);
 	Port (
 		rst : in std_logic;
-
-		a_0 : in STD_LOGIC;
-		a_1 : in STD_LOGIC;
-		b_0 : in STD_LOGIC;
-		b_1 : in STD_LOGIC;
-		c_0 : in STD_LOGIC;
-		c_1 : in STD_LOGIC;
+		ki  : in std_logic;
+		ko  : out std_logic;
+		
+		d_0 : in STD_LOGIC_VECTOR (width - 1 downto 0);
+		d_1 : in STD_LOGIC_VECTOR (width - 1 downto 0);
 		y_0 : out STD_LOGIC;
 		y_1 : out STD_LOGIC
 	);
-end or3_rN;
+end andn_reg;
 
-architecture Behavioral of or3_rN is
-	signal t_0, t_1 : STD_LOGIC;
+architecture Behavioral of andn_reg is
 begin
-
-	g1: entity ncl_components.or2_rN
-		port map(
-			rst => rst,
-
-			a_0 => a_0,
-			a_1 => a_1,
-			b_0 => b_0,
-			b_1 => b_1,
-			y_0 => t_0,
-			y_1 => t_1
-		);
 	
-	g2: entity ncl_components.or2_rN
-		port map(
+	gate: entity ncl_components.orn_reg
+		generic map (
+			width => width,
+			rst_y_0 => rst_y_1,
+			rst_y_1 => rst_y_0
+		) port map (
 			rst => rst,
-
-			a_0 => t_0,
-			a_1 => t_1,
-			b_0 => c_0,
-			b_1 => c_1,
-			y_0 => y_0,
-			y_1 => y_1
-		); 
+			ki  => ki,
+			ko  => ko,
+			
+			d_0 => d_1,
+			d_1 => d_0,
+			y_0 => y_1,
+			y_1 => y_0
+		);
 
 end Behavioral;

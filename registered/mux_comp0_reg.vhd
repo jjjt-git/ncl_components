@@ -33,13 +33,17 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 library ncl_gates;
 
-entity mux_comp0_rN is
+entity mux_comp0_reg is
 	Generic (
-		width : integer
+		width : integer;
+		rst_y_0 : std_logic_vector; -- desired value of y at end of reset
+		rst_y_1 : std_logic_vector
 	);
 	Port (
 		rst : in std_logic;
-	
+		ki  : in std_logic;
+		ko  : out std_logic_vector(width - 1 downto 0);
+		
 		s_0 : in STD_LOGIC;
 		s_1 : in STD_LOGIC;
 		a_0 : in STD_LOGIC_VECTOR (width - 1 downto 0);
@@ -49,9 +53,9 @@ entity mux_comp0_rN is
 		y_0 : out STD_LOGIC_VECTOR (width - 1 downto 0);
 		y_1 : out STD_LOGIC_VECTOR (width - 1 downto 0)
 	);
-end mux_comp0_rN;
+end mux_comp0_reg;
 
-architecture Behavioral of mux_comp0_rN is
+architecture Behavioral of mux_comp0_reg is
 
 begin
 	-- sab y
@@ -71,43 +75,100 @@ begin
 	
 	gates: for ii in 0 to width - 1 generate
 		signal t0, t1 : std_logic;
+		signal to0, to1 : std_logic;
 	begin
-		gate0_1: entity ncl_gates.TH54w22n
+		gate0_1: entity ncl_gates.TH54w22
 			port map(
 				A => s_1,
 				B => b_0(ii),
 				C => a_0(ii),
 				D => a_1(ii),
-				R => rst,
 				Z => t0
 			);
 			
-		gate1_1: entity ncl_gates.TH54w22n
+		gate1_1: entity ncl_gates.TH54w22
 			port map(
 				A => s_1,
 				B => b_1(ii),
 				C => a_0(ii),
 				D => a_1(ii),
-				R => rst,
 				Z => t1
 			);
+		
+		rst_N: if rst_y_0(ii) = '0' and rst_y_1(ii) = '0' generate
+			gate_0_2: entity ncl_gates.TH54w32n
+				port map(
+					A => ki,
+					B => t0,
+					C => s_0,
+					D => a_0(ii),
+					R => rst,
+					Z => to0
+				);
+				
+			gate_1_2: entity ncl_gates.TH54w32n
+				port map(
+					A => ki,
+					B => t1,
+					C => s_0,
+					D => a_1(ii),
+					R => rst,
+					Z => to1
+				);
+		end generate;
+		
+		rst_0: if rst_y_0(ii) = '1' and rst_y_1(ii) = '0' generate
+			gate_0_2: entity ncl_gates.TH54w32d
+				port map(
+					A => ki,
+					B => t0,
+					C => s_0,
+					D => a_0(ii),
+					R => rst,
+					Z => to0
+				);
+				
+			gate_1_2: entity ncl_gates.TH54w32n
+				port map(
+					A => ki,
+					B => t1,
+					C => s_0,
+					D => a_1(ii),
+					R => rst,
+					Z => to1
+				);
+		end generate;
+		
+		rst_1: if rst_y_0(ii) = '0' and rst_y_1(ii) = '1' generate
+			gate_0_2: entity ncl_gates.TH54w32n
+				port map(
+					A => ki,
+					B => t0,
+					C => s_0,
+					D => a_0(ii),
+					R => rst,
+					Z => to0
+				);
+				
+			gate_1_2: entity ncl_gates.TH54w32d
+				port map(
+					A => ki,
+					B => t1,
+					C => s_0,
+					D => a_1(ii),
+					R => rst,
+					Z => to1
+				);
+		end generate;
 			
-		gate_0_2: entity ncl_gates.TH23w2n
-			port map(
-				A => t0,
-				B => s_0,
-				C => a_0(ii),
-				R => rst,
-				Z => y_0(ii)
-			);
-			
-		gate_1_2: entity ncl_gates.TH23w2n
-			port map(
-				A => t1,
-				B => s_0,
-				C => a_1(ii),
-				R => rst,
-				Z => y_1(ii)
+		y_0(ii) <= to0;
+		y_1(ii) <= to1;
+		
+		comp: entity ncl_gates.TH12
+			port map (
+				A => to0,
+				B => to1,
+				Z => ko(ii)
 			);
 	end generate;
 

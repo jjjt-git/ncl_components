@@ -5,8 +5,11 @@ library ncl_components;
 
 use IEEE.STD_LOGIC_1164.ALL;
 
+library UNISIM;
+use UNISIM.VComponents.all;
+
 entity completion_loop is
-	generic(
+	generic (
 		max_gate_inputs : integer := 5;
 		width : integer := 1
 	);
@@ -20,7 +23,21 @@ architecture Structural of completion_loop is
 	
 	constant owidth : integer := (width - (width mod max_gate_inputs)) / max_gate_inputs + (width mod max_gate_inputs);
 	constant ngates : integer := (width - (width mod max_gate_inputs)) / max_gate_inputs;
+	
+	signal ko_int : std_logic;
+	attribute NCL_WIRE_TYPE : string;
+	attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
+	attribute DONT_TOUCH : boolean;
+	attribute DONT_TOUCH of ko_mark : label is TRUE;
 begin
+
+	ko_mark: LUT1
+		generic map (
+			INIT => "10"
+		) port map (
+			I0 => ko_int,
+			O  => ko
+		);
 
 	assert max_gate_inputs = 4 or max_gate_inputs = 5 report "Please select 4 or 5-input gates" severity FAILURE;
 	
@@ -29,10 +46,11 @@ begin
 	begin
 
 		n: entity ncl_components.completion_loop
-			generic map (width => owidth)
-			port map (
+			generic map (
+				width => owidth
+			) port map (
 				ko_vector => next_stage,
-				ko => ko
+				ko => ko_int
 			);
 		
 		gates: for ii in ngates - 1 downto 0 generate
@@ -68,7 +86,7 @@ begin
 	g5: if width = 5 and max_gate_inputs = 5 generate
 		signal ko_neg : std_logic;
 	begin
-		ko <= not ko_neg;
+		ko_int <= not ko_neg;
 	
 		gate: entity ncl_gates.TH55
 				port map (
@@ -84,7 +102,7 @@ begin
 	g4: if width = 4 generate
 		signal ko_neg : std_logic;
 	begin
-		ko <= not ko_neg;
+		ko_int <= not ko_neg;
 	
 		gate: entity ncl_gates.TH44
 				port map (
@@ -99,7 +117,7 @@ begin
 	g3: if width = 3 generate
 		signal ko_neg : std_logic;
 	begin
-		ko <= not ko_neg;
+		ko_int <= not ko_neg;
 	
 		gate: entity ncl_gates.TH33
 				port map (
@@ -113,7 +131,7 @@ begin
 	g2: if width = 2 generate
 		signal ko_neg : std_logic;
 	begin
-		ko <= not ko_neg;
+		ko_int <= not ko_neg;
 	
 		gate: entity ncl_gates.TH22
 				port map (
@@ -124,6 +142,6 @@ begin
 	end generate;
 	
 	g1: if width = 1 generate
-		ko <= not ko_vector(0);
+		ko_int <= not ko_vector(0);
 	end generate;
 end Structural;

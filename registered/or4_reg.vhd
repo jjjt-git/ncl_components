@@ -33,10 +33,16 @@ library ncl_components;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity or4_rN is
+entity or4_reg is
+	Generic (
+		rst_y_0 : std_logic; -- desired value of y at end of reset
+		rst_y_1 : std_logic
+	);
 	Port (
 		rst : in std_logic;
-
+		ki  : in std_logic;
+		ko  : out std_logic;
+		
 		a_0 : in STD_LOGIC;
 		a_1 : in STD_LOGIC;
 		b_0 : in STD_LOGIC;
@@ -48,16 +54,14 @@ entity or4_rN is
 		y_0 : out STD_LOGIC;
 		y_1 : out STD_LOGIC
 	);
-end or4_rN;
+end or4_reg;
 
-architecture Behavioral of or4_rN is
+architecture Behavioral of or4_reg is
 	signal t_0, t_1 : STD_LOGIC;
 begin
 
-	g1: entity ncl_components.or3_rN
+	g1: entity ncl_components.or3
 		port map(
-			rst => rst,
-
 			a_0 => a_0,
 			a_1 => a_1,
 			b_0 => b_0,
@@ -68,10 +72,15 @@ begin
 			y_1 => t_1
 		);
 	
-	g2: entity ncl_components.or2_rN
-		port map(
+	g2: entity ncl_components.or2_reg
+		generic map (
+			rst_y_0 => rst_y_0,
+			rst_y_1 => rst_y_1
+		) port map (
 			rst => rst,
-
+			ki  => ki,
+			ko  => ko,
+			
 			a_0 => t_0,
 			a_1 => t_1,
 			b_0 => d_0,

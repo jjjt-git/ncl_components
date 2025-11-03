@@ -33,21 +33,25 @@ library ncl_components;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity orn_rN is
+entity orn_reg is
 	Generic (
-		width : integer
+		width : integer;
+		rst_y_0 : std_logic; -- desired value of y at end of reset
+		rst_y_1 : std_logic
 	);
 	Port (
 		rst : in std_logic;
-
+		ki  : in std_logic;
+		ko  : out std_logic;
+		
 		d_0 : in STD_LOGIC_VECTOR(width - 1 downto 0);
 		d_1 : in STD_LOGIC_VECTOR(width - 1 downto 0);
 		y_0 : out STD_LOGIC;
 		y_1 : out STD_LOGIC
 	);
-end orn_rN;
+end orn_reg;
 
-architecture Behavioral of orn_rN is
+architecture Behavioral of orn_reg is
 	constant owidth : integer := (width - (width mod 4)) / 4 + (width mod 4);
 	constant ngates : integer := (width - (width mod 4)) / 4;
 begin
@@ -56,11 +60,9 @@ begin
 		signal next_stage_0, next_stage_1 : std_logic_vector(owidth - 1 downto 0);
 	begin
 
-		n: entity ncl_components.orn_rN
+		n: entity ncl_components.orn
 			generic map (width => owidth)
 			port map (
-				rst => rst,
-
 				d_0 => next_stage_0,
 				d_1 => next_stage_1,
 				y_0 => y_0,
@@ -68,18 +70,16 @@ begin
 			);
 			
 		gates: for ii in ngates - 1 downto 0 generate
-			gate: entity ncl_components.or4_rN
+			gate: entity ncl_components.or4
 				port map (
-					rst => rst,
-
-					a_0 => d_0(ii),
-					a_1 => d_1(ii),
-					b_0 => d_0(ii + 1),
-					b_1 => d_1(ii + 1),
-					c_0 => d_0(ii + 2),
-					c_1 => d_1(ii + 2),
-					d_0 => d_0(ii + 3),
-					d_1 => d_1(ii + 3),
+					a_0 => d_0(4 * ii),
+					a_1 => d_1(4 * ii),
+					b_0 => d_0(4 * ii + 1),
+					b_1 => d_1(4 * ii + 1),
+					c_0 => d_0(4 * ii + 2),
+					c_1 => d_1(4 * ii + 2),
+					d_0 => d_0(4 * ii + 3),
+					d_1 => d_1(4 * ii + 3),
 					y_0 => next_stage_0(ii),
 					y_1 => next_stage_1(ii)
 				);
@@ -92,10 +92,15 @@ begin
 	end generate;
 	
 	g4: if width = 4 generate
-		gate: entity ncl_components.or4_rN
-			port map (
+		gate: entity ncl_components.or4_reg
+			generic map (
+				rst_y_0 => rst_y_0,
+				rst_y_1 => rst_y_1
+			) port map (
 				rst => rst,
-
+				ki  => ki,
+				ko  => ko,
+				
 				a_0 => d_0(0),
 				a_1 => d_1(0),
 				b_0 => d_0(1),
@@ -110,10 +115,15 @@ begin
 	end generate;
 	
 	g3: if width = 3 generate
-		gate: entity ncl_components.or3_rN
-			port map (
+		gate: entity ncl_components.or3_reg
+			generic map (
+				rst_y_0 => rst_y_0,
+				rst_y_1 => rst_y_1
+			) port map (
 				rst => rst,
-
+				ki  => ki,
+				ko  => ko,
+				
 				a_0 => d_0(0),
 				a_1 => d_1(0),
 				b_0 => d_0(1),
@@ -126,10 +136,15 @@ begin
 	end generate;
 	
 	g2: if width = 2 generate
-		gate: entity ncl_components.or2_rN
-			port map (
+		gate: entity ncl_components.or2_reg
+			generic map (
+				rst_y_0 => rst_y_0,
+				rst_y_1 => rst_y_1
+			) port map (
 				rst => rst,
-
+				ki  => ki,
+				ko  => ko,
+				
 				a_0 => d_0(0),
 				a_1 => d_1(0),
 				b_0 => d_0(1),
