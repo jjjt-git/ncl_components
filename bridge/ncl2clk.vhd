@@ -22,14 +22,12 @@ architecture Behavioural of ncl2clk is
 	signal di_b_0, di_b_1, do_b, di_m_0, di_m_1 : std_logic_vector(width - 1 downto 0);
 	signal di_cN, di_cD, do_bv, do_v : std_logic;
 	
-	type state_t is (WFD, WFN);
-	signal state : state_t;
+	signal state : std_logic;
 	
 	attribute ASYNC_REG : boolean;
 	attribute ASYNC_REG of di_b_0: signal is TRUE;
 	attribute ASYNC_REG of di_b_1: signal is TRUE;
 	
-	signal ko_int : std_logic;
 	attribute NCL_WIRE_TYPE : string;
 	attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
 	attribute DONT_TOUCH : boolean;
@@ -40,30 +38,32 @@ begin
 		generic map (
 			INIT => "10"
 		) port map (
-			I0 => ko_int,
+			I0 => state,
 			O  => ko
 		);
 
-	di_m_0 <= di_0;
-	di_m_1 <= di_1;
-
---	data_input_markers: for ii in 0 to width - 1 generate -- markers to disable timing through NCL-logic
---		NCL2CLK_in_0: LUT1
---			generic map (
---				INIT => "10")
---			port map (
---				I0 => di_0(ii),
---				O  => di_m_0(ii)
---			);
+	mark_di: for ii in 0 to width - 1 generate
+		attribute NCL_WIRE_TYPE of d0_mark : label is "NCL_CLK";
+		attribute NCL_WIRE_TYPE of d1_mark : label is "NCL_CLK";
+	begin
+	
+		d0_mark: LUT1
+			generic map (
+				INIT => "10"
+			) port map (
+				I0 => di_0(ii),
+				O  => di_m_0(ii)
+			);
 			
---		NCL2CLK_in_1: LUT1
---			generic map (
---				INIT => "10")
---			port map (
---				I0 => di_1(ii),
---				O  => di_m_1(ii)
---			);
---	end generate;
+		d1_mark: LUT1
+			generic map (
+				INIT => "10"
+			) port map (
+				I0 => di_1(ii),
+				O  => di_m_1(ii)
+			);
+			
+	end generate;
 
 	data_input_regs: process(clk) begin
 		if rising_edge(clk) then
@@ -104,7 +104,7 @@ begin
 	begin
 		if rising_edge(clk) then
 			if rst = '1' then
-				state <= WFD;
+				state <= '1';
 				do_v  <= '0';
 				do_bv <= '0';
 			else
@@ -112,15 +112,15 @@ begin
 				di_v := '0';
 				
 				case state is
-					when WFD =>
+					when '1' =>
 						if di_cD = '1' and ((WITH_BUFFER and do_bv = '0') or (not WITH_BUFFER and do_v = '0')) then
-							state <= WFN;
+							state <= '0';
 							di   := di_b_1;
 							di_v := '1';
 						end if;
-					when WFN =>
+					when '0' =>
 						if di_cN = '1' then
-							state <= WFD;
+							state <= '1';
 						end if;
 				end case;
 				
@@ -154,9 +154,4 @@ begin
 	end process op;
 	
 	valid <= do_v;
-	
-	ko_int <=
-		'1' when state = WFD else
-		'0' when state = WFN else
-		'X';
 end Behavioural;

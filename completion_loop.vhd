@@ -23,21 +23,7 @@ architecture Structural of completion_loop is
 	
 	constant owidth : integer := (width - (width mod max_gate_inputs)) / max_gate_inputs + (width mod max_gate_inputs);
 	constant ngates : integer := (width - (width mod max_gate_inputs)) / max_gate_inputs;
-	
-	signal ko_int : std_logic;
-	attribute NCL_WIRE_TYPE : string;
-	attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
-	attribute DONT_TOUCH : boolean;
-	attribute DONT_TOUCH of ko_mark : label is TRUE;
 begin
-
-	ko_mark: LUT1
-		generic map (
-			INIT => "10"
-		) port map (
-			I0 => ko_int,
-			O  => ko
-		);
 
 	assert max_gate_inputs = 4 or max_gate_inputs = 5 report "Please select 4 or 5-input gates" severity FAILURE;
 	
@@ -50,7 +36,7 @@ begin
 				width => owidth
 			) port map (
 				ko_vector => next_stage,
-				ko => ko_int
+				ko => ko
 			);
 		
 		gates: for ii in ngates - 1 downto 0 generate
@@ -85,7 +71,22 @@ begin
 	
 	g5: if width = 5 and max_gate_inputs = 5 generate
 		signal ko_neg : std_logic;
+		signal ko_int : std_logic;
+		
+		attribute NCL_WIRE_TYPE : string;
+		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
+		attribute DONT_TOUCH : boolean;
+		attribute DONT_TOUCH of ko_mark : label is TRUE;
 	begin
+
+		ko_mark: LUT1
+			generic map (
+				INIT => "10"
+			) port map (
+				I0 => ko_int,
+				O  => ko
+			);
+			
 		ko_int <= not ko_neg;
 	
 		gate: entity ncl_gates.TH55
@@ -101,7 +102,22 @@ begin
 	
 	g4: if width = 4 generate
 		signal ko_neg : std_logic;
+		signal ko_int : std_logic;
+		
+		attribute NCL_WIRE_TYPE : string;
+		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
+		attribute DONT_TOUCH : boolean;
+		attribute DONT_TOUCH of ko_mark : label is TRUE;
 	begin
+
+		ko_mark: LUT1
+			generic map (
+				INIT => "10"
+			) port map (
+				I0 => ko_int,
+				O  => ko
+			);
+			
 		ko_int <= not ko_neg;
 	
 		gate: entity ncl_gates.TH44
@@ -116,7 +132,22 @@ begin
 	
 	g3: if width = 3 generate
 		signal ko_neg : std_logic;
+		signal ko_int : std_logic;
+		
+		attribute NCL_WIRE_TYPE : string;
+		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
+		attribute DONT_TOUCH : boolean;
+		attribute DONT_TOUCH of ko_mark : label is TRUE;
 	begin
+
+		ko_mark: LUT1
+			generic map (
+				INIT => "10"
+			) port map (
+				I0 => ko_int,
+				O  => ko
+			);
+			
 		ko_int <= not ko_neg;
 	
 		gate: entity ncl_gates.TH33
@@ -130,7 +161,22 @@ begin
 	
 	g2: if width = 2 generate
 		signal ko_neg : std_logic;
+		signal ko_int : std_logic;
+		
+		attribute NCL_WIRE_TYPE : string;
+		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
+		attribute DONT_TOUCH : boolean;
+		attribute DONT_TOUCH of ko_mark : label is TRUE;
 	begin
+
+		ko_mark: LUT1
+			generic map (
+				INIT => "10"
+			) port map (
+				I0 => ko_int,
+				O  => ko
+			);
+			
 		ko_int <= not ko_neg;
 	
 		gate: entity ncl_gates.TH22
@@ -142,6 +188,22 @@ begin
 	end generate;
 	
 	g1: if width = 1 generate
+		signal ko_int : std_logic;
+		
+		attribute NCL_WIRE_TYPE : string;
+		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
+		attribute DONT_TOUCH : boolean;
+		attribute DONT_TOUCH of ko_mark : label is TRUE;
+	begin
+
+		ko_mark: LUT1
+			generic map (
+				INIT => "10"
+			) port map (
+				I0 => ko_int,
+				O  => ko
+			);
+			
 		ko_int <= not ko_vector(0);
 	end generate;
 end Structural;

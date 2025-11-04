@@ -19,12 +19,41 @@ entity clk2ncl is
 end clk2ncl;
 
 architecture Behavioural of clk2ncl is
+	signal do_m_0, do_m_1: std_logic_vector(width - 1 downto 0);
+	
 	signal di_b, do_b: std_logic_vector(width - 1 downto 0);
 	signal do_b_stall, di_bv, do_v, ki_neg, do_rst, do_ce: std_logic;
 	
 	attribute ASYNC_REG : boolean;
 	attribute ASYNC_REG of ki_latch: label is TRUE;
+	
+	attribute NCL_WIRE_TYPE : string;
+	attribute DONT_TOUCH : boolean;
+	
 begin
+
+	mark_do: for ii in 0 to width - 1 generate
+		attribute NCL_WIRE_TYPE of d0_mark : label is "NCL_CLK";
+		attribute NCL_WIRE_TYPE of d1_mark : label is "NCL_CLK";
+	begin
+	
+		d0_mark: LUT1
+			generic map (
+				INIT => "10"
+			) port map (
+				I0 => do_m_0(ii),
+				O  => do_0(ii)
+			);
+			
+		d1_mark: LUT1
+			generic map (
+				INIT => "10"
+			) port map (
+				I0 => do_m_1(ii),
+				O  => do_1(ii)
+			);
+			
+	end generate;
 
 	data_output_regs: for ii in 0 to width - 1 generate
 		signal d_neg : std_logic;
@@ -43,7 +72,7 @@ begin
 				CE  => do_ce,
 				CLR => do_rst,
 				D   => d_neg,
-				Q   => do_0(ii)
+				Q   => do_m_0(ii)
 			);
 	
 		reg_1: FDCE
@@ -54,7 +83,7 @@ begin
 				CE  => do_ce,
 				CLR => do_rst,
 				D   => do_b(ii),
-				Q   => do_1(ii)
+				Q   => do_m_1(ii)
 			);
 	end generate;
 	
