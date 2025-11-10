@@ -57,7 +57,7 @@ begin
 		y_0(ii) <= t_0;
 		y_1(ii) <= t_1;
 	
-		rst_type: if rst_y_1(ii) = '0' and rst_y_0(ii) = '0' generate -- rst to 00
+		rst_type_N: if rst_y_1(ii) = '0' and rst_y_0(ii) = '0' generate -- rst to 00
 --			reg: entity ncl_gates.TH22n_22n_SA_AA
 --				port map (
 --					A  => ki,
@@ -91,7 +91,9 @@ begin
 					B => t_1,
 					Z => ko(ii)
 				);
-		elsif rst_y_1(ii) = '0' and rst_y_0(ii) = '1' generate -- rst to 01
+		end generate;
+		
+		rst_type_D0: if rst_y_1(ii) = '0' and rst_y_0(ii) = '1' generate -- rst to 01
 			reg_1: entity ncl_gates.TH22n
 				port map (
 					A => ki,
@@ -114,7 +116,9 @@ begin
 					B => t_1,
 					Z => ko(ii)
 				);
-		elsif rst_y_1(ii) = '1' and rst_y_0(ii) = '0' generate -- rst to 10
+		end generate;
+		
+		rst_type_D1: if rst_y_1(ii) = '1' and rst_y_0(ii) = '0' generate -- rst to 10
 			reg_1: entity ncl_gates.TH22d
 				port map (
 					A => ki,
