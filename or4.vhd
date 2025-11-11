@@ -49,27 +49,35 @@ entity or4 is
 end or4;
 
 architecture Behavioral of or4 is
-	signal t_0, t_1 : STD_LOGIC;
+	signal t0_0, t0_1, t1_0, t1_1 : STD_LOGIC;
 begin
 
-	g1: entity ncl_components.or3
+	g1: entity ncl_components.or2
 		port map(
 			a_0 => a_0,
 			a_1 => a_1,
 			b_0 => b_0,
 			b_1 => b_1,
-			c_0 => c_0,
-			c_1 => c_1,
-			y_0 => t_0,
-			y_1 => t_1
+			y_0 => t0_0,
+			y_1 => t0_1
 		);
 	
 	g2: entity ncl_components.or2
 		port map(
-			a_0 => t_0,
-			a_1 => t_1,
+			a_0 => c_0,
+			a_1 => c_1,
 			b_0 => d_0,
 			b_1 => d_1,
+			y_0 => t1_0,
+			y_1 => t1_1
+		);
+	
+	g3: entity ncl_components.or2
+		port map(
+			a_0 => t0_0,
+			a_1 => t0_1,
+			b_0 => t1_0,
+			b_1 => t1_1,
 			y_0 => y_0,
 			y_1 => y_1
 		);

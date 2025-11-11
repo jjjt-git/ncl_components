@@ -22,7 +22,9 @@ architecture Behavioural of ncl2clk is
 	signal di_b_0, di_b_1, do_b, di_m_0, di_m_1 : std_logic_vector(width - 1 downto 0);
 	signal di_cN, di_cD, do_bv, do_v : std_logic;
 	
-	signal state : std_logic;
+	type state_t is (WFRN, WFRD);
+	signal state : state_t;
+	signal state_log : std_logic;
 	
 	attribute ASYNC_REG : boolean;
 	attribute ASYNC_REG of di_b_0: signal is TRUE;
@@ -38,9 +40,14 @@ begin
 		generic map (
 			INIT => "10"
 		) port map (
-			I0 => state,
+			I0 => state_log,
 			O  => ko
 		);
+	
+	state_log <=
+		'1' when state = WFRD else
+		'0' when state = WFRN else
+		'X';
 
 	mark_di: for ii in 0 to width - 1 generate
 		attribute NCL_WIRE_TYPE of d0_mark : label is "NCL_CLK";
@@ -104,7 +111,7 @@ begin
 	begin
 		if rising_edge(clk) then
 			if rst = '1' then
-				state <= '1';
+				state <= WFRD;
 				do_v  <= '0';
 				do_bv <= '0';
 			else
@@ -112,15 +119,15 @@ begin
 				di_v := '0';
 				
 				case state is
-					when '1' =>
+					when WFRD =>
 						if di_cD = '1' and ((WITH_BUFFER and do_bv = '0') or (not WITH_BUFFER and do_v = '0')) then
-							state <= '0';
+							state <= WFRN;
 							di   := di_b_1;
 							di_v := '1';
 						end if;
-					when '0' =>
+					when WFRN =>
 						if di_cN = '1' then
-							state <= '1';
+							state <= WFRD;
 						end if;
 				end case;
 				

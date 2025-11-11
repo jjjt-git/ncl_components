@@ -49,47 +49,38 @@ entity xor4 is
 end xor4;
 
 architecture Behavioral of xor4 is
-	signal t_0, t_1: std_logic;
+	signal t0_0, t0_1, t1_0, t1_1 : STD_LOGIC;
 begin
-	-- 0000 0
-	-- 0001 1
-	-- 0010 1
-	-- 0011 0
-	-- 0100 1
-	-- 0101 0
-	-- 0110 0
-	-- 0111 1
-	-- 1000 1
-	-- 1001 0
-	-- 1010 0
-	-- 1011 1
-	-- 1100 0
-	-- 1101 1
-	-- 1110 1
-	-- 1111 0
-	-- y0 <= 
-	-- y1 <= 
-	
-	g1: entity ncl_components.xor3
+
+	g1: entity ncl_components.xor2
 		port map(
 			a_0 => a_0,
 			a_1 => a_1,
 			b_0 => b_0,
 			b_1 => b_1,
-			c_0 => c_0,
-			c_1 => c_1,
-			y_0 => t_0,
-			y_1 => t_1
+			y_0 => t0_0,
+			y_1 => t0_1
 		);
 	
 	g2: entity ncl_components.xor2
 		port map(
-			a_0 => t_0,
-			a_1 => t_1,
+			a_0 => c_0,
+			a_1 => c_1,
 			b_0 => d_0,
 			b_1 => d_1,
+			y_0 => t1_0,
+			y_1 => t1_1
+		);
+	
+	g3: entity ncl_components.xor2
+		port map(
+			a_0 => t0_0,
+			a_1 => t0_1,
+			b_0 => t1_0,
+			b_1 => t1_1,
 			y_0 => y_0,
 			y_1 => y_1
 		);
+
 	
 end Behavioral;
