@@ -19,108 +19,120 @@ entity clk2ncl is
 end clk2ncl;
 
 architecture Behavioural of clk2ncl is
-	signal do_m_0, do_m_1: std_logic_vector(width - 1 downto 0);
+	signal do_1m, do_0m, d_r : std_logic_vector(width - 1 downto 0);
+	signal v_r : std_logic;
 	
-	signal di_b, do_b: std_logic_vector(width - 1 downto 0);
-	signal do_b_stall, di_bv, do_v, ki_neg, do_rst, do_ce: std_logic;
+	signal hold : std_logic;
+	signal ki_s : std_logic;
 	
-	attribute ASYNC_REG : boolean;
-	attribute ASYNC_REG of ki_latch: label is TRUE;
+	signal stalled : std_logic;
 	
 	attribute NCL_WIRE_TYPE : string;
-	attribute DONT_TOUCH : boolean;
+	attribute DONT_TOUCH    : boolean;
+	attribute ASYNC_REG     : boolean;
 	
+	signal ki_f, ki_r     : std_logic;
+	signal ki_f_p, ki_r_p : std_logic;
+	attribute ASYNC_REG of ki_f_p : signal is true;
+	attribute ASYNC_REG of ki_r_p : signal is true;
 begin
-
-	mark_do: for ii in 0 to width - 1 generate
-		attribute NCL_WIRE_TYPE of d0_mark : label is "NCL_CLK";
-		attribute NCL_WIRE_TYPE of d1_mark : label is "NCL_CLK";
-	begin
+	stall <= stalled;
+	ki_s <= ki_f and ki_r;
 	
-		d0_mark: LUT1
-			generic map (
-				INIT => "10"
-			) port map (
-				I0 => do_m_0(ii),
-				O  => do_0(ii)
-			);
-			
-		d1_mark: LUT1
-			generic map (
-				INIT => "10"
-			) port map (
-				I0 => do_m_1(ii),
-				O  => do_1(ii)
-			);
-			
-	end generate;
+	do_0m <= (others => '0') when v_r = '0' or ki_s = '0' else not d_r;
+	do_1m <= (others => '0') when v_r = '0' or ki_s = '0' else d_r;
+	
+	do_0 <= do_0m;
+	do_1 <= do_1m;
+	
+	stalled <= hold and v_r;
 
-	data_output_regs: for ii in 0 to width - 1 generate
-		signal d_neg : std_logic;
+	mark_d: for ii in 0 to width - 1 generate
+		attribute NCL_WIRE_TYPE of do0_mark : label is "NCL_CLK";
+		attribute DONT_TOUCH    of do0_mark : label is true;
 		
-		attribute ASYNC_REG of reg_0: label is TRUE;
-		attribute ASYNC_REG of reg_1: label is TRUE;
+		attribute NCL_WIRE_TYPE of do1_mark : label is "NCL_CLK";
+		attribute DONT_TOUCH    of do1_mark : label is true;
 	begin
-	
-		d_neg <= not do_b(ii);
-	
-		reg_0: FDCE
+		do0_mark: LUT1
 			generic map (
-				INIT => '0'
+				INIT => "10"
 			) port map (
-				C   => clk,
-				CE  => do_ce,
-				CLR => do_rst,
-				D   => d_neg,
-				Q   => do_m_0(ii)
+				I0 => do_0m(ii)
 			);
-	
-		reg_1: FDCE
+			
+		do1_mark: LUT1
 			generic map (
-				INIT => '0'
+				INIT => "10"
 			) port map (
-				C   => clk,
-				CE  => do_ce,
-				CLR => do_rst,
-				D   => do_b(ii),
-				Q   => do_m_1(ii)
+				I0 => do_1m(ii)
 			);
 	end generate;
 	
-	ki_latch: FDPE
-		generic map (
-			INIT => '1'
-		) port map (
-			C   => clk,
-			CE  => do_ce,
-			PRE => do_rst,
-			D   => '0',
-			Q   => do_b_stall
-		);
-
-	ki_neg <= not ki;
-	do_rst <= ki_neg or rst;
-	do_ce  <= do_v and ki and do_b_stall;
-	
-	op: process(clk) begin -- standard bypass buffer (unregistered); ovalid and istall are the same
+	in_regs: process(clk) begin
 		if rising_edge(clk) then
 			if rst = '1' then
-				di_bv <= '0';
-			else
-				if (valid = '1' and di_bv = '0') and (ki = '0' or do_b_stall = '0') then -- incoming, but stalled
-					di_bv <= '1';
-				elsif not (ki = '0' or do_b_stall = '0') then -- not stalled
-					di_bv <= '0';
-				end if;
-				
-				if di_bv = '0' then
-					di_b <= di;
-				end if;
+				d_r <= (others => '0');
+				v_r <= '0';
+			elsif stalled = '0' then
+				d_r <= di;
+				v_r <= valid;
+			elsif (ki_f xor ki_r) = '1' then
+				v_r <= '0';
 			end if;
 		end if;
-	end process op;
+	end process in_regs;
 	
-	stall <= di_bv;
-	do_v  <= valid or di_bv;
-	do_b  <= di_b when di_bv = '1' else di;
+	hold_unit: process(clk) begin
+		if rising_edge(clk) then
+			if rst = '1' then
+				hold <= '1';
+			elsif (ki_f xor ki_r) = '1' then
+				hold <= '0';
+			elsif valid = '1' then
+				hold <= '1';
+			end if;
+		end if;
+	end process hold_unit;
+	
+	ki_rm: FDRE
+		port map (
+			R  => rst,
+			C  => clk,
+			CE => '1',
+			
+			D => ki,
+			Q => ki_r_p
+		);
+	
+	ki_fm: FDRE_1
+		port map (
+			R  => rst,
+			C  => clk,
+			CE => '1',
+			
+			D => ki,
+			Q => ki_f_p
+		);
+	
+	ki_rs: FDRE_1
+		port map (
+			R  => rst,
+			C  => clk,
+			CE => '1',
+			
+			D => ki_r_p,
+			Q => ki_r
+		);
+	
+	ki_fs: FDRE
+		port map (
+			R  => rst,
+			C  => clk,
+			CE => '1',
+			
+			D => ki_f_p,
+			Q => ki_f
+		);
+	
 end Behavioural;
