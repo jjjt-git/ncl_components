@@ -83,9 +83,10 @@ begin
 			generic map (
 				INIT => "10"
 			) port map (
-				I0 => ko_int,
-				O  => ko
+				I0 => ko_int
 			);
+			
+		ko <= ko_int;
 			
 		ko_int <= not ko_neg;
 	
@@ -114,9 +115,10 @@ begin
 			generic map (
 				INIT => "10"
 			) port map (
-				I0 => ko_int,
-				O  => ko
+				I0 => ko_int
 			);
+			
+		ko <= ko_int;
 			
 		ko_int <= not ko_neg;
 	
@@ -144,9 +146,10 @@ begin
 			generic map (
 				INIT => "10"
 			) port map (
-				I0 => ko_int,
-				O  => ko
+				I0 => ko_int
 			);
+			
+		ko <= ko_int;
 			
 		ko_int <= not ko_neg;
 	
@@ -173,9 +176,10 @@ begin
 			generic map (
 				INIT => "10"
 			) port map (
-				I0 => ko_int,
-				O  => ko
+				I0 => ko_int
 			);
+			
+		ko <= ko_int;
 			
 		ko_int <= not ko_neg;
 	
@@ -200,9 +204,10 @@ begin
 			generic map (
 				INIT => "10"
 			) port map (
-				I0 => ko_int,
-				O  => ko
+				I0 => ko_int
 			);
+			
+		ko <= ko_int;
 			
 		ko_int <= not ko_vector(0);
 	end generate;
