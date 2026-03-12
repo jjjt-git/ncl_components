@@ -28,13 +28,22 @@ architecture Behavioural of clk2ncl is
 	signal stalled : std_logic;
 	
 	attribute NCL_WIRE_TYPE : string;
+	attribute RLOC          : string;
 	attribute DONT_TOUCH    : boolean;
 	attribute ASYNC_REG     : boolean;
 	
 	signal ki_f, ki_r     : std_logic;
 	signal ki_f_p, ki_r_p : std_logic;
-	attribute ASYNC_REG of ki_f_p : signal is true;
-	attribute ASYNC_REG of ki_r_p : signal is true;
+	
+	attribute ASYNC_REG of ki_rm : label is true;
+	attribute ASYNC_REG of ki_fm : label is true;
+	attribute ASYNC_REG of ki_rs : label is true;
+	attribute ASYNC_REG of ki_fs : label is true;
+	
+	attribute RLOC of ki_rm : label is "X0Y0";
+	attribute RLOC of ki_fm : label is "X1Y0";
+	attribute RLOC of ki_rs : label is "X1Y0";
+	attribute RLOC of ki_fs : label is "X0Y0";
 begin
 	stall <= stalled;
 	ki_s <= ki_f and ki_r;

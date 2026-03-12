@@ -71,7 +71,6 @@ begin
 	
 	g5: if width = 5 and max_gate_inputs = 5 generate
 		signal ko_neg : std_logic;
-		signal ko_int : std_logic;
 		
 		attribute NCL_WIRE_TYPE : string;
 		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
@@ -83,12 +82,10 @@ begin
 			generic map (
 				INIT => "10"
 			) port map (
-				I0 => ko_int
+				I0 => ko_neg
 			);
 			
-		ko <= ko_int;
-			
-		ko_int <= not ko_neg;
+		ko <= not ko_neg;
 	
 		gate: entity ncl_gates.TH55
 				port map (
@@ -103,7 +100,6 @@ begin
 	
 	g4: if width = 4 generate
 		signal ko_neg : std_logic;
-		signal ko_int : std_logic;
 		
 		attribute NCL_WIRE_TYPE : string;
 		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
@@ -115,12 +111,10 @@ begin
 			generic map (
 				INIT => "10"
 			) port map (
-				I0 => ko_int
+				I0 => ko_neg
 			);
 			
-		ko <= ko_int;
-			
-		ko_int <= not ko_neg;
+		ko <= not ko_neg;
 	
 		gate: entity ncl_gates.TH44
 				port map (
@@ -134,7 +128,6 @@ begin
 	
 	g3: if width = 3 generate
 		signal ko_neg : std_logic;
-		signal ko_int : std_logic;
 		
 		attribute NCL_WIRE_TYPE : string;
 		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
@@ -146,12 +139,10 @@ begin
 			generic map (
 				INIT => "10"
 			) port map (
-				I0 => ko_int
+				I0 => ko_neg
 			);
 			
-		ko <= ko_int;
-			
-		ko_int <= not ko_neg;
+		ko <= not ko_neg;
 	
 		gate: entity ncl_gates.TH33
 				port map (
@@ -164,7 +155,6 @@ begin
 	
 	g2: if width = 2 generate
 		signal ko_neg : std_logic;
-		signal ko_int : std_logic;
 		
 		attribute NCL_WIRE_TYPE : string;
 		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
@@ -176,12 +166,10 @@ begin
 			generic map (
 				INIT => "10"
 			) port map (
-				I0 => ko_int
+				I0 => ko_neg
 			);
 			
-		ko <= ko_int;
-			
-		ko_int <= not ko_neg;
+		ko <= not ko_neg;
 	
 		gate: entity ncl_gates.TH22
 				port map (
@@ -192,8 +180,6 @@ begin
 	end generate;
 	
 	g1: if width = 1 generate
-		signal ko_int : std_logic;
-		
 		attribute NCL_WIRE_TYPE : string;
 		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
 		attribute DONT_TOUCH : boolean;
@@ -204,11 +190,9 @@ begin
 			generic map (
 				INIT => "10"
 			) port map (
-				I0 => ko_int
+				I0 => ko_vector(0)
 			);
 			
-		ko <= ko_int;
-			
-		ko_int <= not ko_vector(0);
+		ko <= not ko_vector(0);
 	end generate;
 end Structural;

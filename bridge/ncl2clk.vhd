@@ -3,9 +3,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 library UNISIM;
 use UNISIM.VComponents.all;
 
+library ncl_components;
+
 entity ncl2clk is
 	generic (
-		WITH_BUFFER : boolean := true;
 		width: integer := 2
 	);
 	port (
@@ -19,146 +20,88 @@ entity ncl2clk is
 end ncl2clk;
 
 architecture Behavioural of ncl2clk is
-	signal di_b_0, di_b_1, do_b, di_m_0, di_m_1 : std_logic_vector(width - 1 downto 0);
-	signal di_cN, di_cD, do_bv, do_v : std_logic;
-	
-	type state_t is (WFRN, WFRD);
-	signal state : state_t;
-	signal state_log : std_logic;
-	
-	attribute ASYNC_REG : boolean;
-	attribute ASYNC_REG of di_b_0: signal is TRUE;
-	attribute ASYNC_REG of di_b_1: signal is TRUE;
-	
 	attribute NCL_WIRE_TYPE : string;
-	attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
-	attribute DONT_TOUCH : boolean;
-	attribute DONT_TOUCH of ko_mark : label is TRUE;
+	attribute RLOC          : string;
+	attribute DONT_TOUCH    : boolean;
+	attribute ASYNC_REG     : boolean;
+	
+	signal ki, ki_p, ki_s, ki_sp : std_logic;
+	
+	attribute ASYNC_REG of ki_rm : label is true;
+	attribute ASYNC_REG of ki_fs : label is true;
+	attribute ASYNC_REG of ki_rs : label is true;
+	
+	attribute RLOC of ki_rm : label is "X0Y0";
+	attribute RLOC of ki_fs : label is "X1Y0";
+	
+	signal ki_vec: std_logic_vector(width - 1 downto 0);
+	
+	signal ce, ko_int, valid_p: std_logic;
+	
+	attribute NCL_WIRE_TYPE of ko_mark : label is "NCL_CLK";
+	attribute DONT_TOUCH    of ko_mark : label is true;
 begin
 
+	ki_vec <= di_0 or di_1;
+	
+	comp: entity ncl_components.completion_loop
+		generic map (
+			width => width
+		) port map (
+			ko_vector => ki_vec,
+			ko => ki
+		);
+	
+	di: process(clk) begin
+		if rising_edge(clk) then
+			if ki_s = '1' and ki_sp = '1' then
+				do <= di_1;
+			end if;
+		end if;
+	end process di;
+	
+	ki_rm: FDSE
+		port map (
+			S  => rst,
+			C  => clk,
+			CE => '1',
+			
+			D => ki,
+			Q => ki_p
+		);
+	
+	ki_fs: FDSE_1
+		port map (
+			S  => rst,
+			C  => clk,
+			CE => ce,
+			
+			D => ki_p,
+			Q => ki_s
+		);
+		
+	ki_rs: FDSE
+		port map (
+			S  => rst,
+			C  => clk,
+			CE => ce,
+			
+			D => ki_s,
+			Q => ki_sp
+		);
+	
 	ko_mark: LUT1
 		generic map (
 			INIT => "10"
 		) port map (
-			I0 => state_log,
-			O  => ko
+			I0 => ko_int
 		);
 	
-	state_log <=
-		'1' when state = WFRD else
-		'0' when state = WFRN else
-		'X';
-
-	mark_di: for ii in 0 to width - 1 generate
-		attribute NCL_WIRE_TYPE of d0_mark : label is "NCL_CLK";
-		attribute NCL_WIRE_TYPE of d1_mark : label is "NCL_CLK";
-	begin
+	ko_int <= ki_s and ki_sp;
+	ko <= ko_int;
 	
-		d0_mark: LUT1
-			generic map (
-				INIT => "10"
-			) port map (
-				I0 => di_0(ii),
-				O  => di_m_0(ii)
-			);
-			
-		d1_mark: LUT1
-			generic map (
-				INIT => "10"
-			) port map (
-				I0 => di_1(ii),
-				O  => di_m_1(ii)
-			);
-			
-	end generate;
-
-	data_input_regs: process(clk) begin
-		if rising_edge(clk) then
-			if rst = '1' then
-				di_b_0 <= (others => '0');
-				di_b_1 <= (others => '0');
-			else
-				di_b_0 <= di_m_0;
-				di_b_1 <= di_m_1;
-			end if;
-		end if;
-	end process data_input_regs;
+	ce <= not valid_p or not stall;
 	
-	comp: process(di_b_0, di_b_1)
-		variable di_c: std_logic_vector(width - 1 downto 0);
-		variable cN, cD: std_logic;
-	begin
-		di_c := di_b_0 or di_b_1;
-		
-		cN := '1';
-		cD := '1';
-		
-		for ii in 0 to width - 1 loop
-			if di_c(ii) = '1' then
-				cN := '0';
-			else
-				cD := '0';
-			end if;
-		end loop;
-		
-		di_cN <= cN;
-		di_cD <= cD;
-	end process comp;
-	
-	op: process(clk)
-		variable di   : std_logic_vector(width - 1 downto 0);
-		variable di_v : std_logic;
-	begin
-		if rising_edge(clk) then
-			if rst = '1' then
-				state <= WFRD;
-				do_v  <= '0';
-				do_bv <= '0';
-			else
-				di   := (others => '-');
-				di_v := '0';
-				
-				case state is
-					when WFRD =>
-						if di_cD = '1' and ((WITH_BUFFER and do_bv = '0') or (not WITH_BUFFER and do_v = '0')) then
-							state <= WFRN;
-							di   := di_b_1;
-							di_v := '1';
-						end if;
-					when WFRN =>
-						if di_cN = '1' then
-							state <= WFRD;
-						end if;
-				end case;
-				
-				if WITH_BUFFER then
-					if (do_bv = '0' and di_v = '1') and (do_v = '1' and stall = '1') then
-						do_bv <= '1';
-					elsif stall = '0' then
-						do_bv <= '0';
-					end if;
-					
-					if do_bv = '0' then
-						do_b <= di;
-					end if;
-					
-					if do_v = '0' or stall = '0' then
-						do_v <= di_v or do_bv;
-						if do_bv = '1' then
-							do <= do_b;
-						else
-							do <= di;
-						end if;
-					end if;
-				else
-					if do_v = '0' or stall = '0' then
-						do_v <= di_v;
-						do   <= di;
-					end if;
-				end if;
-			end if;
-		end if;
-	end process op;
-	
-	valid <= do_v;
+	valid <= valid_p;
+	valid_p <= not ki_sp and ki_s;
 end Behavioural;
