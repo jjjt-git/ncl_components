@@ -74,6 +74,7 @@ begin
 		
 		attribute NCL_WIRE_TYPE : string;
 		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
+		
 		attribute DONT_TOUCH : boolean;
 		attribute DONT_TOUCH of ko_mark : label is TRUE;
 	begin
@@ -103,6 +104,7 @@ begin
 		
 		attribute NCL_WIRE_TYPE : string;
 		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
+		
 		attribute DONT_TOUCH : boolean;
 		attribute DONT_TOUCH of ko_mark : label is TRUE;
 	begin
@@ -131,6 +133,7 @@ begin
 		
 		attribute NCL_WIRE_TYPE : string;
 		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
+		
 		attribute DONT_TOUCH : boolean;
 		attribute DONT_TOUCH of ko_mark : label is TRUE;
 	begin
@@ -158,6 +161,7 @@ begin
 		
 		attribute NCL_WIRE_TYPE : string;
 		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
+		
 		attribute DONT_TOUCH : boolean;
 		attribute DONT_TOUCH of ko_mark : label is TRUE;
 	begin
@@ -182,6 +186,7 @@ begin
 	g1: if width = 1 generate
 		attribute NCL_WIRE_TYPE : string;
 		attribute NCL_WIRE_TYPE of ko_mark : label is "ACK";
+		
 		attribute DONT_TOUCH : boolean;
 		attribute DONT_TOUCH of ko_mark : label is TRUE;
 	begin
