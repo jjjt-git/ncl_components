@@ -1,26 +1,28 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 08/13/2025 03:09:05 PM
--- Design Name: 
--- Module Name: rca - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
+-- Company:
+-- Engineer:
+--
+-- Create Date: 08/16/2025 11:44:50 AM
+-- Design Name:
+-- Module Name: or4_en - Behavioral
+-- Project Name:
+-- Target Devices:
+-- Tool Versions:
+-- Description:
+--
+-- Dependencies:
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
--- 
+--
 ----------------------------------------------------------------------------------
 
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+
+library ncl_components;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -31,47 +33,56 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-library ncl_components;
-
-entity ha is
+entity or4_en is
 	Port (
+		en  : in std_logic;
 		a_0 : in STD_LOGIC;
 		a_1 : in STD_LOGIC;
 		b_0 : in STD_LOGIC;
 		b_1 : in STD_LOGIC;
-		co_0 : out STD_LOGIC;
-		co_1 : out STD_LOGIC;
+		c_0 : in STD_LOGIC;
+		c_1 : in STD_LOGIC;
+		d_0 : in STD_LOGIC;
+		d_1 : in STD_LOGIC;
 		y_0 : out STD_LOGIC;
 		y_1 : out STD_LOGIC
 	);
-end ha;
+end or4_en;
 
-architecture Behavioral of ha is
+architecture Behavioral of or4_en is
+	signal t0_0, t0_1, t1_0, t1_1 : STD_LOGIC;
 begin
-	-- ab cy
-	-- 00 00
-	-- 01 01
-	-- 10 01
-	-- 11 10
-	
-	gy: entity ncl_components.xor2
+
+	g1: entity ncl_components.or2_en
 		port map(
+			en  => en,
 			a_0 => a_0,
 			a_1 => a_1,
 			b_0 => b_0,
 			b_1 => b_1,
+			y_0 => t0_0,
+			y_1 => t0_1
+		);
+
+	g2: entity ncl_components.or2_en
+		port map(
+			en  => en,
+			a_0 => c_0,
+			a_1 => c_1,
+			b_0 => d_0,
+			b_1 => d_1,
+			y_0 => t1_0,
+			y_1 => t1_1
+		);
+
+	g3: entity ncl_components.or2
+		port map(
+			a_0 => t0_0,
+			a_1 => t0_1,
+			b_0 => t1_0,
+			b_1 => t1_1,
 			y_0 => y_0,
 			y_1 => y_1
 		);
-	
-	gc: entity ncl_components.or2
-		port map(
-			a_0 => a_1,
-			a_1 => a_0,
-			b_0 => b_1,
-			b_1 => b_0,
-			y_0 => co_1,
-			y_1 => co_0
-		); 
-	
+
 end Behavioral;

@@ -64,7 +64,7 @@ begin
 	-- co_0 <= a0b0 + a0c0 + b0c0
 	-- co_1 <= b1c1 + a1c1 + a1b1
 	-- y_0  <= a0b0c0 + a0co_1 + b0co_1 + c0co_1
-	-- y_1  <= c0_0c1 + b1co_0 + a1co_0 + a1b1c1
+	-- y_1  <= co_0c1 + b1co_0 + a1co_0 + a1b1c1
 	
 	co_0 <= c_0;
 	co_1 <= c_1;
