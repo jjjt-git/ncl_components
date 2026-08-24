@@ -49,7 +49,15 @@ begin
 	regs: for ii in 0 to width - 1 generate
 		signal t_0, t_1: std_logic;
 		signal m_0, m_1: std_logic;
+		
+		signal iso_ki : std_logic;
 	begin
+	
+		fork_mark: entity ncl_gates.isofork
+			port map (
+				I => ki,
+				O => iso_ki
+			);
 	
 		m_0 <= d_0(ii);
 		m_1 <= d_1(ii);
@@ -73,7 +81,7 @@ begin
 				
 			reg_1: entity ncl_gates.TH22n
 				port map (
-					A => ki,
+					A => iso_ki,
 					B => m_1,
 					R => rst,
 					Z => t_1
@@ -81,7 +89,7 @@ begin
 				
 			reg_0: entity ncl_gates.TH22n
 				port map (
-					A => ki,
+					A => iso_ki,
 					B => m_0,
 					R => rst,
 					Z => t_0
@@ -91,7 +99,7 @@ begin
 		rst_type_D0: if rst_y_1(ii) = '0' and rst_y_0(ii) = '1' generate -- rst to 01
 			reg_1: entity ncl_gates.TH22n
 				port map (
-					A => ki,
+					A => iso_ki,
 					B => m_1,
 					R => rst,
 					Z => t_1
@@ -99,7 +107,7 @@ begin
 				
 			reg_0: entity ncl_gates.TH22d
 				port map (
-					A => ki,
+					A => iso_ki,
 					B => m_0,
 					R => rst,
 					Z => t_0
@@ -109,7 +117,7 @@ begin
 		rst_type_D1: if rst_y_1(ii) = '1' and rst_y_0(ii) = '0' generate -- rst to 10
 			reg_1: entity ncl_gates.TH22d
 				port map (
-					A => ki,
+					A => iso_ki,
 					B => m_1,
 					R => rst,
 					Z => t_1
@@ -117,7 +125,7 @@ begin
 				
 			reg_0: entity ncl_gates.TH22n
 				port map (
-					A => ki,
+					A => iso_ki,
 					B => m_0,
 					R => rst,
 					Z => t_0
