@@ -31,6 +31,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
+library qdi_framework;
 library ncl_gates;
 
 entity mux_comp0_reg is
@@ -76,7 +77,16 @@ begin
 	gates: for ii in 0 to width - 1 generate
 		signal t0, t1 : std_logic;
 		signal to0, to1 : std_logic;
+		
+		signal iso_ki : std_logic;
 	begin
+	
+		fork_mark: entity qdi_framework.isofork
+			port map (
+				I => ki,
+				O => iso_ki
+			);
+			
 		gate0_1: entity ncl_gates.TH54w22
 			port map(
 				A => s_1,
@@ -98,7 +108,7 @@ begin
 		rst_N: if rst_y_0(ii) = '0' and rst_y_1(ii) = '0' generate
 			gate_0_2: entity ncl_gates.TH54w32n
 				port map(
-					A => ki,
+					A => iso_ki,
 					B => t0,
 					C => s_0,
 					D => a_0(ii),
@@ -108,7 +118,7 @@ begin
 				
 			gate_1_2: entity ncl_gates.TH54w32n
 				port map(
-					A => ki,
+					A => iso_ki,
 					B => t1,
 					C => s_0,
 					D => a_1(ii),
@@ -120,7 +130,7 @@ begin
 		rst_0: if rst_y_0(ii) = '1' and rst_y_1(ii) = '0' generate
 			gate_0_2: entity ncl_gates.TH54w32d
 				port map(
-					A => ki,
+					A => iso_ki,
 					B => t0,
 					C => s_0,
 					D => a_0(ii),
@@ -130,7 +140,7 @@ begin
 				
 			gate_1_2: entity ncl_gates.TH54w32n
 				port map(
-					A => ki,
+					A => iso_ki,
 					B => t1,
 					C => s_0,
 					D => a_1(ii),
@@ -142,7 +152,7 @@ begin
 		rst_1: if rst_y_0(ii) = '0' and rst_y_1(ii) = '1' generate
 			gate_0_2: entity ncl_gates.TH54w32n
 				port map(
-					A => ki,
+					A => iso_ki,
 					B => t0,
 					C => s_0,
 					D => a_0(ii),
@@ -152,7 +162,7 @@ begin
 				
 			gate_1_2: entity ncl_gates.TH54w32d
 				port map(
-					A => ki,
+					A => iso_ki,
 					B => t1,
 					C => s_0,
 					D => a_1(ii),

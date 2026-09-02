@@ -32,7 +32,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 library ncl_gates;
-use ncl_gates.MACRO_CONFIG.all;
 
 entity mux_comps is
 	Generic (

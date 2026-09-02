@@ -24,6 +24,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 library UNISIM;
 use UNISIM.VComponents.all;
 
+library qdi_framework;
 library ncl_gates;
 
 entity reg is
@@ -53,7 +54,7 @@ begin
 		signal iso_ki : std_logic;
 	begin
 	
-		fork_mark: entity ncl_gates.isofork
+		fork_mark: entity qdi_framework.isofork
 			port map (
 				I => ki,
 				O => iso_ki

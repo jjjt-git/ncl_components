@@ -2,7 +2,8 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 library ncl_gates;
-use ncl_gates.MACRO_CONFIG.all;
+library qdi_framework;
+use qdi_framework.MACRO_CONFIG.all;
 
 entity or2_en is
 	Port (
@@ -28,7 +29,7 @@ begin
 			Z => y_0
 		);
 		
-	gate_1: entity ncl_gates.fb_5
+	gate_1: entity qdi_framework.fb_5
 		generic map (
 			ASSERT_SET => ((A5 and B5) or (B5 and C5) or (A5 and D5)) and E5
 		) port map (

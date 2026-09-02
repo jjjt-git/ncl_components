@@ -31,8 +31,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-library ncl_gates;
-use ncl_gates.MACRO_CONFIG.all;
+library qdi_framework;
+use qdi_framework.MACRO_CONFIG.all;
 
 entity xor2_en is
 	Port (
@@ -53,7 +53,7 @@ begin
 	-- y0 <= a0b0 + a1b1
 	-- y1 <= a0b1 + a1b0
 	
-	g1: entity ncl_gates.fb_5
+	g1: entity qdi_framework.fb_5
 		generic map (
 			ASSERT_SET => ((A5 and B5) or (C5 and D5)) and E5
 		) port map(
@@ -65,7 +65,7 @@ begin
 			Z => y_0
 		);
 	
-	g2: entity ncl_gates.fb_5
+	g2: entity qdi_framework.fb_5
 		generic map (
 			ASSERT_SET => ((A5 and B5) or (C5 and D5)) and E5
 		) port map(

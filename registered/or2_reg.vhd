@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
+library qdi_framework;
 library ncl_gates;
 
 entity or2_reg is
@@ -24,7 +25,15 @@ end or2_reg;
 
 architecture Behavioral of or2_reg is
 	signal t_0, t_1 : std_logic;
+	
+	signal iso_ki : std_logic;
 begin
+
+	fork_mark: entity qdi_framework.isofork
+		port map (
+			I => ki,
+			O => iso_ki
+		);
 	
 	-- y0 <= a0 & b0
 	-- y1 <= a1 & b1 | a0 & b1 | a1 & b0
@@ -32,7 +41,7 @@ begin
 	rst_N: if rst_y_0 = '0' and rst_y_1 = '0' generate
 		gate_0: entity ncl_gates.TH33n
 			port map (
-				A => ki,
+				A => iso_ki,
 				B => a_0,
 				C => b_0,
 				R => rst,
@@ -41,7 +50,7 @@ begin
 			
 		gate_1: entity ncl_gates.THand0en
 			port map (
-				A => ki,
+				A => iso_ki,
 				B => a_1,
 				C => b_1,
 				D => a_0,
@@ -54,7 +63,7 @@ begin
 	rst_0: if rst_y_0 = '1' and rst_y_1 = '0' generate
 		gate_0: entity ncl_gates.TH33d
 			port map (
-				A => ki,
+				A => iso_ki,
 				B => a_0,
 				C => b_0,
 				R => rst,
@@ -63,7 +72,7 @@ begin
 			
 		gate_1: entity ncl_gates.THand0en
 			port map (
-				A => ki,
+				A => iso_ki,
 				B => a_1,
 				C => b_1,
 				D => a_0,
@@ -76,7 +85,7 @@ begin
 	rst_1: if rst_y_0 = '0' and rst_y_1 = '1' generate
 		gate_0: entity ncl_gates.TH33n
 			port map (
-				A => ki,
+				A => iso_ki,
 				B => a_0,
 				C => b_0,
 				R => rst,
@@ -85,7 +94,7 @@ begin
 			
 		gate_1: entity ncl_gates.THand0ed
 			port map (
-				A => ki,
+				A => iso_ki,
 				B => a_1,
 				C => b_1,
 				D => a_0,

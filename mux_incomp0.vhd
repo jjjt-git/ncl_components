@@ -31,8 +31,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-library ncl_gates;
-use ncl_gates.MACRO_CONFIG.all;
+library qdi_framework;
+use qdi_framework.MACRO_CONFIG.all;
 
 entity mux_incomp0 is
 	Generic (
@@ -76,7 +76,7 @@ begin
 	
 	gates: for ii in 0 to width - 1 generate begin
 
-		gate_0: entity ncl_gates.fb_5
+		gate_0: entity qdi_framework.fb_5
 			generic map (
 				ASSERT_SET => (A5 and E5 and (C5 or D5)) or (B5 and C5)
 			) port map(
@@ -88,7 +88,7 @@ begin
 				Z => y_0(ii)
 			);
 			
-		gate_1: entity ncl_gates.fb_5
+		gate_1: entity qdi_framework.fb_5
 			generic map (
 				ASSERT_SET => (A5 and E5 and (C5 or D5)) or (B5 and D5)
 			) port map(
