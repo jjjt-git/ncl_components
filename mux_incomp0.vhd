@@ -1,21 +1,21 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
+-- Company:
+-- Engineer:
+--
 -- Create Date: 08/13/2025 03:08:04 PM
--- Design Name: 
+-- Design Name:
 -- Module Name: mux - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
+-- Project Name:
+-- Target Devices:
+-- Tool Versions:
+-- Description:
+--
+-- Dependencies:
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
--- 
+--
 ----------------------------------------------------------------------------------
 
 
@@ -58,22 +58,22 @@ begin
 	-- xxN N
 	-- 0ax a
 	-- 1xb b
-	
+
 	-- s  a  b  y
-	
+
 	-- 01 01 01 01
 	-- 01 01 10 01
 	-- 10 xx 01 01
-	
+
 	-- 01 10 01 10
 	-- 01 10 10 10
 	-- 10 xx 10 10
-	
+
 	--       A  E   C    D     B  C
 	-- y0 <= s0 a0 (b0 + b1) + s1 b0
 	--       A  E   C    D     B  D
 	-- y1 <= s0 a1 (b0 + b1) + s1 b1
-	
+
 	gates: for ii in 0 to width - 1 generate begin
 
 		gate_0: entity qdi_framework.fb_5
@@ -87,7 +87,7 @@ begin
 				E => a_0(ii),
 				Z => y_0(ii)
 			);
-			
+
 		gate_1: entity qdi_framework.fb_5
 			generic map (
 				ASSERT_SET => (A5 and E5 and (C5 or D5)) or (B5 and D5)
@@ -99,7 +99,7 @@ begin
 				E => a_1(ii),
 				Z => y_1(ii)
 			);
-			
+
 	end generate;
 
 end Behavioral;

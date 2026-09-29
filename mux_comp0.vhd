@@ -1,21 +1,21 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
+-- Company:
+-- Engineer:
+--
 -- Create Date: 08/13/2025 03:08:04 PM
--- Design Name: 
+-- Design Name:
 -- Module Name: mux - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
+-- Project Name:
+-- Target Devices:
+-- Tool Versions:
+-- Description:
+--
+-- Dependencies:
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
--- 
+--
 ----------------------------------------------------------------------------------
 
 
@@ -31,8 +31,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-library ncl_gates;
-use ncl_gates.MACRO_CONFIG.all;
+library qdi_framework;
+use qdi_framework.MACRO_CONFIG.all;
 
 entity mux_comp0 is
 	Generic (
@@ -58,19 +58,19 @@ begin
 	-- 0ax a
 	-- 1Nx N
 	-- 1xb b
-	
+
 	-- s  a  b  y
 	-- 00 xx xx 00
 	-- 01 aa xx aa
 	-- 10 00 xx 00
 	-- 10 xx bb bb
-	
+
 	-- y0 <= s1 b0 a0 + s1 b0 a1 + s0 a0
 	-- y1 <= s1 b1 a0 + s1 b1 a1 + s0 a1
-	
+
 	gates: for ii in 0 to width - 1 generate begin
-	
-		gate_0: entity ncl_gates.fb_5
+
+		gate_0: entity qdi_framework.fb_5
 			generic map (
 				ASSERT_SET => (A5 and B5 and C5) or (A5 and B5 and D5) or (E5 and C5)
 			) port map(
@@ -81,8 +81,8 @@ begin
 				E => s_0,
 				Z => y_0(ii)
 			);
-			
-		gate_1: entity ncl_gates.fb_5
+
+		gate_1: entity qdi_framework.fb_5
 			generic map (
 				ASSERT_SET => (A5 and B5 and C5) or (A5 and B5 and D5) or (E5 and C5)
 			) port map(
@@ -93,7 +93,7 @@ begin
 				E => s_0,
 				Z => y_1(ii)
 			);
-			
+
 	end generate;
 
 end Behavioral;
