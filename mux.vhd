@@ -1,21 +1,21 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
+-- Company:
+-- Engineer:
+--
 -- Create Date: 08/13/2025 03:08:04 PM
--- Design Name: 
+-- Design Name:
 -- Module Name: mux - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
+-- Project Name:
+-- Target Devices:
+-- Tool Versions:
+-- Description:
+--
+-- Dependencies:
+--
 -- Revision:
 -- Revision 0.01 - File Created
 -- Additional Comments:
--- 
+--
 ----------------------------------------------------------------------------------
 
 
@@ -63,51 +63,43 @@ begin
 	-- 0AB A
 	-- 1AB B
 
-	-- y0 <= '(s0 a0 (b0 + b1)) + s1 b0 (a0 + a1)
-	-- y1 <= '(s0 a1 (b0 + b1)) + s1 b1 (a0 + a1)
-	
+	-- y0 <= a0 s0 (b0 + b1) + b0 s1 (a0 + a1)
+	-- y1 <= a1 s0 (b0 + b1) + b1 s1 (a0 + a1)
+
 	gates: for ii in 0 to width - 1 generate
 		signal t0, t1 : std_logic;
 	begin
-		gate0_1: entity ncl_gates.TH54w22
+		gate0_1: entity ncl_gates.TH23
 			port map (
 				A => s_0,
-				B => a_0(ii),
-				C => b_0(ii),
-				D => b_1(ii),
+				B => b_0(ii),
+				C => b_1(ii),
 				Z => t0
 			);
-			
-		gate1_1: entity ncl_gates.TH54w22
+
+		gate1_1: entity ncl_gates.TH23
 			port map (
-				A => s_0,
-				B => a_1(ii),
-				C => b_0(ii),
-				D => b_1(ii),
+				A => s_1,
+				B => a_0(ii),
+				C => a_1(ii),
 				Z => t1
 			);
-			
-		gate_0_2: entity qdi_framework.fb_5
-			generic map(
-				ASSERT_SET => A5 or (B5 and C5 and (D5 or E5))
-			) port map(
-				A => t0,
-				B => s_1,
-				C => b_0(ii),
-				D => a_0(ii),
-				E => a_1(ii),
+
+		gate_0_2: entity ncl_gates.THxor0
+			port map(
+				A => a_0(ii),
+				B => t0,
+				C => t1,
+				D => b_0(ii),
 				Z => y_0(ii)
 			);
-			
-		gate_1_2: entity qdi_framework.fb_5
-			generic map(
-				ASSERT_SET => A5 or (B5 and C5 and (D5 or E5))
-			) port map (
-				A => t1,
-				B => s_1,
-				C => b_1(ii),
-				D => a_0(ii),
-				E => a_1(ii),
+
+		gate_1_2: entity ncl_gates.THxor0
+			port map (
+				A => a_1(ii),
+				B => t0,
+				C => t1,
+				D => b_1(ii),
 				Z => y_1(ii)
 			);
 	end generate;
